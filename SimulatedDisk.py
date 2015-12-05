@@ -45,4 +45,5 @@ class SimulatedDisk():
         """ Return a list of the filenames in the server."""
         self.lock.acquire()
         self.lock.release()
+        return "Hello World"
 
