@@ -6,12 +6,13 @@ import signal
 import sys
 
 BUFFER_SIZE = 1024
-LISTENER_PORT = 8764
+LISTENER_PORT = 8765
 
 
 def start_server(host, port, disk):
     try:
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((host, port))
         server_socket.listen(5) # this is the number of possible queued connections
         while 1:
@@ -26,7 +27,7 @@ def start_server(host, port, disk):
         print("closing server socket")
         server_socket.close()
 
-def handel_new_conection(client_socket, client_address, disk):
+def handle_new_conection(client_socket, client_address, disk):
     print("Time to handle the client at %s:%s!" % client_address)
     # first we have to get the command from the client
     try:
@@ -64,26 +65,31 @@ def parse_request_and_formulate_response(request, disk):
     # replace \n with spaces because that's only reasonable
     # then remove the trailing space
     request = request.replace("\n", " ")
+    print request
     request = request.strip()
 
     # split the request and pass it to the proper function
     split_request = request.split()
+
+    # TO DO: get rid of \n at end of line and turn str into int
+
     # I use a few extra cycles here to use some sexy syntax
-    command = split_request.pop()
+    command = split_request.pop(0)
+    print split_request
     try:
         if command == 'STORE':
-            print("Trying to store file %f size %d." % (split_request[0], split_request[1]))
+            print("Trying to store file %f size %d." % (split_request[0], int(split_request[1])))
             return disk.store(*split_request)
 
         if command == 'READ':
-            print("Trying to read file %f offset %d size %d." % split_request)
+            print("Trying to read file %f offset %d size %d." % split_request[0], int(split_request[1]), int(split_request[2]))
             return disk.read(*split_request)
 
         if command == 'DELETE':
             print("Trying to delete a file %f." % split_request[0])
             return disk.delete(*split_request)
 
-        if command == 'DIR':
+        if command == 'DIR\n':
             print("Listing the files in the system.")
             return disk.dir()
         # if we haven't returned by now there's an error
