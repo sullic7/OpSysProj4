@@ -19,7 +19,7 @@ def start_server(host, port, disk):
             print("Waiting for a new connection.")
             client_socket, client_address = server_socket.accept()
             print("Received a new connection from %s:%s" % client_address)
-            thread.start_new_thread(handel_new_conection, (client_socket, client_address, disk))
+            thread.start_new_thread(handle_new_conection, (client_socket, client_address, disk))
     except KeyboardInterrupt:
         pass
     finally:
@@ -75,18 +75,21 @@ def parse_request_and_formulate_response(request, disk):
 
     # I use a few extra cycles here to use some sexy syntax
     command = split_request.pop(0)
+    print("Command: %s" % command)
+    print("Rest of request:")
     print split_request
     try:
         if command == 'STORE':
-            print("Trying to store file %f size %d." % (split_request[0], int(split_request[1])))
+            print("Trying to store file %s size %d." % (split_request[0], int(split_request[1])))
             return disk.store(*split_request)
 
         if command == 'READ':
-            print("Trying to read file %f offset %d size %d." % split_request[0], int(split_request[1]), int(split_request[2]))
+            print("Trying to read file %s offset %d size %d." % 
+                (split_request[0], int(split_request[1]), int(split_request[2])))
             return disk.read(*split_request)
 
         if command == 'DELETE':
-            print("Trying to delete a file %f." % split_request[0])
+            print("Trying to delete a file %s." % split_request[0])
             return disk.delete(*split_request)
 
         if command == 'DIR\n':
