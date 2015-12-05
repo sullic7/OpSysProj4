@@ -92,7 +92,7 @@ def parse_request_and_formulate_response(request, disk):
             print("Trying to delete a file %s." % split_request[0])
             return disk.delete(*split_request)
 
-        if command == 'DIR\n':
+        if command == 'DIR':
             print("Listing the files in the system.")
             return disk.dir()
         # if we haven't returned by now there's an error
