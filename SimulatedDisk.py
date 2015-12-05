@@ -24,7 +24,7 @@ class SimulatedDisk():
         self.size = size
         self.n_blocks = n_blocks
         self.blocksize = blocksize
-        self.lock = threading.Lock
+        self.lock = threading.Lock()
         self.disk_mem = []
         self.disk_file = open("disk.txt",'w')
         self.disk_file.close()
