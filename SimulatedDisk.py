@@ -29,7 +29,7 @@ class SimulatedDisk():
         self.disk_file = open("disk.txt",'w')
         self.disk_file.close()
         for i in range(self.size):
-            self.mem.append(".")
+            self.disk_mem.append(".")
 
     def store(self, filename, num_bytes, file_contents):
         """ Add the specified file to the storage server. """
