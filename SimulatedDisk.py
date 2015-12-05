@@ -31,24 +31,27 @@ class SimulatedDisk():
         for i in range(self.size):
             self.mem.append(".")
 
-    def store(filename, num_bytes, file_contents):
+    def store(self, filename, num_bytes, file_contents):
         """ Add the specified file to the storage server. """
         self.lock.acquire()
         self.lock.release()
+        return "PLACEHOLDER RESULT OF STORE METHOD\n"
 
-    def read(filename, byte_offset, length):
+    def read(self, filename, byte_offset, length):
         """ Return a list of bytes from the specified offset """
         self.lock.acquire()
         self.lock.release()
+        return "PLACEHOLDER RESULT OF READ METHOD\n"
 
-    def delete(filename):
+    def delete(self, filename):
         """ Delete the specified file on the server. """
         self.lock.acquire()
         self.lock.release()
+        return "PLACEHOLDER RESULT OF DELETE METHOD\n"
 
-    def dir():
+    def dir(self):
         """ Return a list of the filenames in the server."""
         self.lock.acquire()
         self.lock.release()
-        return "0\n"
+        return "PLACEHOLDER RESULT OF DIR METHOD\n"
 
