@@ -25,7 +25,7 @@ def start_server(host, port, disk):
         pass
     finally:
         # close the port and exit gracefully
-        print("closing server socket")
+        print("Closing server socket")
         server_socket.close()
 
 def handle_new_conection(client_socket, client_address, disk):
@@ -36,7 +36,7 @@ def handle_new_conection(client_socket, client_address, disk):
             data = client_socket.recv(BUFFER_SIZE)
 
             if not data:
-                client_socket.send("ERROR: No data entered from client")
+                client_socket.send("ERROR: NO DATA ENTERED FROM CLIENT\n")
                 break;
 
             # DO SOMETHING HERE TO GET CLIENT RESPONSE
@@ -47,7 +47,7 @@ def handle_new_conection(client_socket, client_address, disk):
                 response = parse_request_and_formulate_response(data, disk)
             except Exception as e:
                 # this is a catch all response
-                response = "[thread %d] ERROR: %s" % (threadID, str(e))
+                response = "ERROR: %s" % (threadID, str(e))
             
             client_socket.send(response)
     finally:
@@ -86,10 +86,10 @@ def parse_request_and_formulate_response(request, disk):
             return disk.dir(current_thread)
         # if we haven't returned by now there's an error
         # print("[thread %d] ERROR: Invalid command" % current_thread)
-        return "ERROR: Invalid command\n"
+        return "ERROR: INVALID COMMAND\n"
 
     except SimulatedDiskError as e:
-        print("sending back a simulated disk error: %s" % e)
+        print("ERROR: SIMULATED DISK %s" % e)
         return str(e)
 
 
