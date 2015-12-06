@@ -35,16 +35,14 @@ def handle_new_conection(client_socket, client_address, disk):
             data = client_socket.recv(BUFFER_SIZE)
 
             if not data:
-                print("Didn't get any data from the client, abandoning.")
+                client_socket.send("ERROR: No data entered from client")
                 break;
-            print("data: "+ repr(data))
 
             # DO SOMETHING HERE TO GET CLIENT RESPONSE
             # first strip the string of the random "\r" I see from telnet
             data = string.replace(data, "\r", "")
 
             try:
-                # response = "Hey baby, come here often? I'll be your server today."
                 response = parse_request_and_formulate_response(data, disk)
             except Exception as e:
                 print("caught an exception")
@@ -52,14 +50,10 @@ def handle_new_conection(client_socket, client_address, disk):
                 # this is a catch all response
                 response = "ERROR: something bad happened. I'm sorry hon."
             
-            #print("response: "+ repr(response))
             client_socket.send(response)
     finally:
-        print("finally closing client socket")
+        print("[thread %d] Client closed its socket....terminating" % threading.currentThread().ident)
         client_socket.close()
-
-    print("client closed connection :'-(. I guess no one wants to talk to me.")
-
 
 def parse_request_and_formulate_response(request, disk):
     # replace \n with spaces because that's only reasonable
