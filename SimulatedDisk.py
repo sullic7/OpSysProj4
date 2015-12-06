@@ -55,7 +55,7 @@ class SimulatedDisk():
             self.lock.release()
             return "ERROR: TOO MANY FILES TO SIMULATE\n"
         else:
-            new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_contents)
+            new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space, file_contents)
             disk_file = open(".storage.txt",'a')
             disk_file.write(filename + '\n')
             disk_file.close()
@@ -73,31 +73,51 @@ class SimulatedDisk():
     def read(self, filename, byte_offset, length, threadID):
         """ Return a list of bytes from the specified offset. """
         self.lock.acquire()
-        # use .readline()?
+
+
         self.lock.release()
         return "ACK\n"
 
     def delete(self, filename, threadID):
         """ Delete the specified file on the server. """
         self.lock.acquire()
-        """
-        i = 0
-        while(i<self.size and self.disk_mem[i]!=process.proc_num):
-            i += 1
-        end_of_proc_mem = i+process.memory_size
-        while(i<self.size and i < end_of_proc_mem):
-            self.disk_mem[i] = "."
-            i += 1
-        """
-        self.show(threadID)
-        self.lock.release()
-        return "ACK\n"
+        removed_file = self.files_on_disk.pop(filename)
+
+        # remove file from the directory
+        disk_file = open(".storage.txt",'r+')
+        files = disk_file.readlines()
+        file_exists = True
+        disk_file.seek(0)
+        for line in files:
+            if line != (removed_file.name + '\n'):
+                disk_file.write(line)
+        disk_file.truncate()
+        disk_file.close()
+
+        if not file_exists:
+            return "ERROR: FILE EXISTS\n"
+        else:
+            i = 0
+            j = 0
+            while(i<self.size and j<removed_file.num_blocks):
+                if(self.disk_mem[i]==removed_file.letter):
+                    self.disk_mem[i] = "."
+                    j+=1
+                i += 1
+            print("[thread %d] Deleted %s file '%c' (deallocated %d blocks)" % (threadID, removed_file.name, removed_file.letter, removed_file.num_blocks))
+            self.show(threadID)
+            self.lock.release()
+            return "ACK\n"
 
     def dir(self, threadID):
         """ Return a list of the filenames in the server."""
         self.lock.acquire()
+        disk_file = open(".storage.txt",'r')
+        files = disk_file.readlines()
+        result = str(len(files)) + '\n' + "".join(files)
+        disk_file.close()
         self.lock.release()
-        return "ACK\n"
+        return "%s" % result
 
     def show(self, threadID):
         """ Print current disk space. """
@@ -132,15 +152,15 @@ class SimulatedDisk():
                 j+=1
             else:
                 continuous = False
-            print continuous
             i+=1
         return cluster
 
 
 class StoredFiles():
 
-    def __init__(self, file_name, letter, num_bytes, contents):
+    def __init__(self, file_name, letter, num_bytes, num_blocks, contents):
         self.name = file_name
         self.letter = letter
         self.num_bytes = num_bytes
+        self.num_blocks = num_blocks
         self.contents = contents

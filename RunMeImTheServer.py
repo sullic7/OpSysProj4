@@ -30,6 +30,7 @@ def start_server(host, port, disk):
 
 def handle_new_conection(client_socket, client_address, disk):
     # first we have to get the command from the client
+    threadID = threading.currentThread().ident
     try:
         while 1:
             data = client_socket.recv(BUFFER_SIZE)
@@ -45,14 +46,12 @@ def handle_new_conection(client_socket, client_address, disk):
             try:
                 response = parse_request_and_formulate_response(data, disk)
             except Exception as e:
-                print("caught an exception")
-                print(e)
                 # this is a catch all response
-                response = "ERROR: something bad happened. I'm sorry hon."
+                response = "[thread %d] ERROR: %s" % (threadID, str(e))
             
             client_socket.send(response)
     finally:
-        print("[thread %d] Client closed its socket....terminating" % threading.currentThread().ident)
+        print("[thread %d] Client closed its socket....terminating" % threadID)
         client_socket.close()
 
 def parse_request_and_formulate_response(request, disk):
@@ -81,13 +80,12 @@ def parse_request_and_formulate_response(request, disk):
             return disk.read(*split_request)
 
         if command == 'DELETE':
-            print("Trying to delete a file %s." % split_request[0])
             return disk.delete(*split_request)
 
         if command == 'DIR':
-            print("Listing the files in the system.")
             return disk.dir(current_thread)
         # if we haven't returned by now there's an error
+        # print("[thread %d] ERROR: Invalid command" % current_thread)
         return "ERROR: Invalid command\n"
 
     except SimulatedDiskError as e:
