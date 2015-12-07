@@ -50,7 +50,7 @@ def handle_new_conection(client_socket, client_address, disk):
                 print("[thread %d] caught error '%s' in handling a request." % (threadID, str(e)))
                 response = \
 """There was a runtime error in the code handling the
-request. Please check the server log for more information."""
+request. Please check the server log for more information.\n"""
             
             client_socket.send(response)
     finally:
