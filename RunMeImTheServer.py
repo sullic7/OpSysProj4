@@ -47,7 +47,10 @@ def handle_new_conection(client_socket, client_address, disk):
                 response = parse_request_and_formulate_response(data, disk)
             except Exception as e:
                 # this is a catch all response
-                response = "ERROR: %s" % (threadID, str(e))
+                print("[thread %d] caught error '%s' in handling a request." % (threadID, str(e)))
+                response = \
+"""There was a runtime error in the code handling the
+request. Please check the server log for more information."""
             
             client_socket.send(response)
     finally:
