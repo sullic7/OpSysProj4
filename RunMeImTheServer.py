@@ -2,7 +2,7 @@ import socket
 import thread
 import threading
 import string
-from SimulatedDisk import SimulatedDisk, SimulatedDiskError
+from SimulatedDisk import SimulatedDisk
 import signal
 import sys
 
