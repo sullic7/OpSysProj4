@@ -2,23 +2,6 @@
 import threading
 import math
 
-
-class SimulatedDiskError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
-
-"""
-Here's how to use this error to send error messages back to the client.
-
-if ERROR:
-    raise SimulatedDiskError("ERROR: <error-description>\n")
-
-these will be caught by the server and sent to the client.
-
-"""
-
 class SimulatedDisk():
 
     def __init__(self, size=256, n_blocks=128, blocksize=4096):

@@ -67,30 +67,27 @@ def parse_request_and_formulate_response(request, disk):
     # split the request and pass it to the proper function
     split_request = request.split()
     split_request.append(current_thread)
+
+    # I use a few extra cycles here to use some sexy syntax below
     command = split_request.pop(0)
-    # I use a few extra cycles here to use some sexy syntax
-    try:
-        if command == 'STORE':
-            split_request[1] = int(split_request[1])
-            return disk.store(*split_request)
 
-        if command == 'READ':
-            split_request[1] = int(split_request[1])
-            split_request[2] = int(split_request[2])
-            return disk.read(*split_request)
+    if command == 'STORE':
+        split_request[1] = int(split_request[1])
+        return disk.store(*split_request)
 
-        if command == 'DELETE':
-            return disk.delete(*split_request)
+    if command == 'READ':
+        split_request[1] = int(split_request[1])
+        split_request[2] = int(split_request[2])
+        return disk.read(*split_request)
 
-        if command == 'DIR':
-            return disk.dir(current_thread)
-        # if we haven't returned by now there's an error
-        # print("[thread %d] ERROR: Invalid command" % current_thread)
-        return "ERROR: INVALID COMMAND\n"
+    if command == 'DELETE':
+        return disk.delete(*split_request)
 
-    except SimulatedDiskError as e:
-        print("ERROR: SIMULATED DISK %s" % e)
-        return str(e)
+    if command == 'DIR':
+        return disk.dir(current_thread)
+    # if we haven't returned by now there's an error
+    # print("[thread %d] ERROR: Invalid command" % current_thread)
+    return "ERROR: INVALID COMMAND\n"
 
 
 if __name__ == '__main__':
