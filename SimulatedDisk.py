@@ -38,13 +38,20 @@ class SimulatedDisk():
             self.lock.release()
             return "ERROR: TOO MANY FILES TO SIMULATE\n"
         else:
+            try:
+                make_file = open(filename, 'w')
+                make_file.write(file_contents)
+                make_file.close()
+            except:
+                self.lock.release()
+                return "ERROR: PROBLEM CREATING FILE\n"
+
             new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space, file_contents)
             disk_file = open(".storage.txt",'a')
             disk_file.write(filename + '\n')
             disk_file.close()
+            
             self.files_on_disk[filename] = new_file
-            # TO DO: figure out what to do with file contents (store, read, and remove); make sure contents can be read as bit files
-                # can file contents have spaces? 
             clusters = self.add_file(new_file.letter, file_space)
 
             print("[thread %d] Stored file '%c' (%d bytes; %d blocks; %d cluster)" % (threadID, new_file.letter, num_bytes, file_space, clusters))
@@ -60,13 +67,15 @@ class SimulatedDisk():
             self.lock.release()
             return "ERROR: NO SUCH FILE\n"
         read_file = self.files_on_disk[filename]
-        # TO DO: what is invalid byte range defined as?
-        if(read_file.num_bytes < length):
+        if(read_file.num_bytes < byte_offset + length):
             self.lock.release()
             return "ERROR: INVALID BYTE RANGE\n"
         else:
+            with open(filename) as f:
+                f.seek(byte_offset)
+                contents = f.read(length)
             self.lock.release()
-            return "ACK %d\n%s\n" % (read_file.num_bytes, read_file.contents)
+            return "ACK %d\n%s\n" % (read_file.num_bytes, contents)
 
     def delete(self, filename, threadID):
         """ Delete the specified file on the server. """
