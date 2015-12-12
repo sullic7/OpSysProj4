@@ -2,6 +2,8 @@
 import threading
 import math
 
+BUFFER_SIZE = 1024
+
 class SimulatedDisk():
 
     def __init__(self, size=256, n_blocks=128, blocksize=4096):
@@ -20,7 +22,7 @@ class SimulatedDisk():
         print("Block size is %d" % self.blocksize)
         print("Number of blocks is %d" % self.n_blocks)
 
-    def store(self, filename, num_bytes, file_contents, threadID):
+    def store(self, filename, num_bytes, threadID, client_socket):
         """ Add the specified file to the storage server. """
         self.lock.acquire()
         file_space = int(math.ceil(num_bytes/float(self.blocksize)))
@@ -31,22 +33,34 @@ class SimulatedDisk():
         elif filename in self.files_on_disk:
             self.lock.release()
             return "ERROR: FILE EXISTS\n"
-        elif(len(file_contents)>num_bytes):
-            self.lock.release()
-            return "ERROR: FILE CONTENTS LARGER THAN GIVEN BYTE SIZE\n"
         elif(len(self.letters)==0):
             self.lock.release()
             return "ERROR: TOO MANY FILES TO SIMULATE\n"
         else:
             try:
                 make_file = open(filename, 'w')
-                make_file.write(file_contents)
                 make_file.close()
             except:
                 self.lock.release()
                 return "ERROR: PROBLEM CREATING FILE\n"
 
-            new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space, file_contents)
+            file_len = 0
+            # get file contents from server
+            # TO DO: while received info is not a new command
+            file_content = client_socket.recv(BUFFER_SIZE)
+            # TO DO: remove newline character??
+            file_len += len(file_content)
+
+            if(file_len>num_bytes):
+                self.lock.release()
+                return "ERROR: FILE CONTENTS LARGER THAN GIVEN BYTE SIZE\n"
+
+            make_file = open(filename, 'a')
+            make_file.write(file_content)
+            make_file.close()
+
+            # store new file name in storage directory
+            new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space)
             disk_file = open(".storage.txt",'a')
             disk_file.write(filename + '\n')
             disk_file.close()
@@ -158,9 +172,8 @@ class SimulatedDisk():
 
 class StoredFiles():
 
-    def __init__(self, file_name, letter, num_bytes, num_blocks, contents):
+    def __init__(self, file_name, letter, num_bytes, num_blocks):
         self.name = file_name
         self.letter = letter
         self.num_bytes = num_bytes
         self.num_blocks = num_blocks
-        self.contents = contents
