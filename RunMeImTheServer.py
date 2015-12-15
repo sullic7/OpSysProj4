@@ -66,8 +66,6 @@ def parse_request_and_formulate_response(client_socket, request, disk):
         filename = split_request[1]
         # split_request[2] is NUM_BYTES\nDATA
         split_again = split_request[2].split('\n', 1)
-        # print("before split: %s" % split_request[2])
-        # print("after split", split_again)
         num_bytes = int(split_again[0])
         file_contents = split_again[1]
 
@@ -75,7 +73,7 @@ def parse_request_and_formulate_response(client_socket, request, disk):
         # this will read in all the unread bytes
         num_unread_bytes = num_bytes - len(file_contents)
 
-        if num_unread_bytes > 0:
+        while num_unread_bytes > 0:
             file_contents += client_socket.recv(num_unread_bytes)
             num_unread_bytes = num_bytes - len(file_contents)
 
