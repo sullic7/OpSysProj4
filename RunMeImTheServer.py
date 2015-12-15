@@ -87,7 +87,8 @@ def parse_request_and_formulate_response(client_socket, request, disk):
         return disk.read(filename, byte_offset, length, current_thread)
 
     if command == 'DELETE':
-        filename = split_request[1]
+        # remove the trailing newline
+        filename = split_request[1].strip()
         return disk.delete(filename, current_thread)
 
     if command == 'DIR\n':
