@@ -93,7 +93,6 @@ def parse_request_and_formulate_response(client_socket, request, disk):
     if command == 'DIR':
         return disk.dir(current_thread)
     # if we haven't returned by now there's an error
-    # print("[thread %d] ERROR: Invalid command" % current_thread)
     return "ERROR: INVALID COMMAND\n"
 
 
