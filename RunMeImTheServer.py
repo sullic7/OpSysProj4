@@ -79,7 +79,6 @@ def parse_request_and_formulate_response(client_socket, request, disk):
             num_unread_bits = num_bytes*8 - len(file_contents)
             while num_unread_bits > 0:
                 file_contents += client_socket.recv(BUFFER_SIZE).strip("\n")
-                print("adding file contents: '%s'" % file_contents)
                 num_unread_bits = num_bytes*8 - len(file_contents)
         else:
             num_unread_bytes = num_bytes - len(file_contents)
