@@ -40,14 +40,14 @@ def handle_new_conection(client_socket, client_address, disk):
                 client_socket.send("ERROR: NO DATA ENTERED FROM CLIENT\n")
                 break;
 
-            # try:
-            response = parse_request_and_formulate_response(client_socket, data, disk)
-#             except Exception as e:
-#                 # this is a catch all response
-#                 print("[thread %d] caught error '%s' in handling a request." % (threadID, str(e)))
-#                 response = \
-# """There was a runtime error in the code handling the
-# request. Please check the server log for more information.\n"""
+            try:
+                response = parse_request_and_formulate_response(client_socket, data, disk)
+            except Exception as e:
+                # this is a catch all response
+                print("[thread %d] caught error '%s' in handling a request." % (threadID, str(e)))
+                response = \
+"""There was a runtime error in the code handling the
+request. Please check the server log for more information.\n"""
             client_socket.send(response)
     finally:
         print("[thread %d] Client closed its socket....terminating" % threadID)
@@ -66,8 +66,8 @@ def parse_request_and_formulate_response(client_socket, request, disk):
         filename = split_request[1]
         # split_request[2] is NUM_BYTES\nDATA
         split_again = split_request[2].split('\n', 1)
-        # print("before split: %s" % split_request[2])
-        # print("after split", split_again)
+        print("before split: %s" % split_request[2])
+        print("after split", split_again)
         num_bytes = int(split_again[0])
         file_contents = split_again[1]
         # so this is silly but if there are many newlines 
