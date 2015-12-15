@@ -44,10 +44,11 @@ def test_server(client_socket):
 def send_command(client_socket, command):
     client_socket.send(command)
     comm = command.split(" ")[0]
-    if comm == 'READ' or comm == 'DIR\n' or comm == 'DELETE':
-        return client_socket.recv(BUFFER_SIZE)
-    else:
-        return client_socket.recv(0)
+    # if comm == 'READ' or comm == 'DIR\n' or comm == 'DELETE':
+    #     return client_socket.recv(BUFFER_SIZE)
+    # else:
+    #     return client_socket.recv(0)
+    return client_socket.recv(BUFFER_SIZE)
 
 if __name__ == '__main__':
     start_client('localhost', LISTENER_PORT)
