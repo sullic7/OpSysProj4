@@ -48,7 +48,6 @@ def handle_new_conection(client_socket, client_address, disk):
                 response = \
 """There was a runtime error in the code handling the
 request. Please check the server log for more information.\n"""
-            
             client_socket.send(response)
     finally:
         print("[thread %d] Client closed its socket....terminating" % threadID)
