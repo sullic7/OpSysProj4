@@ -23,19 +23,19 @@ def start_client(host, port):
         client_socket.close()
 
 def test_server(client_socket):
-    command_list = ["STORE xyz.txt 11\n", \
-                    "HelloWorld\n", \
-                    "DIR\n", \
-                    "STORE abc.txt 20\n", \
-                    "HereIsTwentyCharacs\n", \
-                    "READ abc.txt 6 6\n", \
-                    "DIR\n", \
-                    "DELETE xyz.txt\n", \
-                    "READ xyz.txt 5 3\n", \
+    command_list = ["STORE xyz.txt 11\nHelloWorld\n",
+                    "DIR\n",
+                    "STORE abc.txt 20\nHereIsTwentyCharacs\n",
+                    "READ abc.txt 6 6\n",
+                    "DIR\n",
+                    "DELETE xyz.txt\n",
+                    "READ xyz.txt 5 3\n",
                     "DIR\n"]
     for command in command_list:
         try:
+            print("Sending command: %s" % command)
             response = send_command(client_socket, command)
+            print("Got Response:\n%s\n" % response)
         except Exception as e:
             print("Caught error '%s' in sending command." % str(e))
             response = "Error sending command\n"

@@ -55,41 +55,41 @@ request. Please check the server log for more information.\n"""
         client_socket.close()
 
 def parse_request_and_formulate_response(client_socket, request, disk):
-    # replace \n with spaces because that's only reasonable
-    # then remove the trailing space
-    request = request.replace("\n", " ")
-    request = request.strip()
-
     current_thread = threading.currentThread().ident
     print("[thread %d] Rcvd:" % current_thread),
     print request
 
-    # split the request and pass it to the proper function
+    # split the parse_request and pass it to the proper function
     split_request = request.split()
-    split_request.append(current_thread)
-    command = split_request.pop(0)
+    command = split_request[0]
 
     if command == 'STORE':
-        filename = split_request[0]
-        num_bytes = int(split_request[1])
-        split_request[1] = int(split_request[1])
+        print("doing store request")
+        filename = split_request[1]
+        # split_request[2] is NUM_BYTES\nDATA
+        split_again = split_request[2].split('\n')
+        num_bytes = int(split_again[0])
+        file_contents = split_again[1]
 
-        # read file contents
-        file_contents = ""
-        num_unread_bytes = num_bytes
-        while num_unread_bytes > 0:
+        # this will read in all the unread bytes
+        num_unread_bytes = num_bytes - len(file_contents)
+        print("num_unread_bytes %d" % num_unread_bytes)
+        if num_unread_bytes > 0:
             file_contents += client_socket.recv(num_unread_bytes)
-            num_unread_bytes -= len(file_contents)
 
+        print("calling disk.store with args")
+        print(filename, num_bytes, current_thread, file_contents)
         return disk.store(filename, num_bytes, current_thread, file_contents)
 
     if command == 'READ':
-        split_request[1] = int(split_request[1])
-        split_request[2] = int(split_request[2])
-        return disk.read(*split_request)
+        filename = split_request[1]
+        byte_offset = int(split_request[2])
+        length = int(split_request[3])
+        return disk.read(filename, byte_offset, length, current_thread)
 
     if command == 'DELETE':
-        return disk.delete(*split_request)
+        filename = split_request[1]
+        return disk.delete(filename, current_thread)
 
     if command == 'DIR':
         return disk.dir(current_thread)

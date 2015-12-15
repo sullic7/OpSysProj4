@@ -35,7 +35,9 @@ class SimulatedDisk():
 
     def store(self, filename, num_bytes, threadID, file_contents):
         """ Add the specified file to the storage server. """
+        print("about to get lock")
         self.lock.acquire()
+        print("got lock")
         file_space = int(math.ceil(num_bytes/float(self.blocksize)))
         space = self.get_open_disk_space()
         if(space < file_space):
