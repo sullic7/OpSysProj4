@@ -24,7 +24,7 @@ class SimulatedDisk():
         print("Block size is %d" % self.blocksize)
         print("Number of blocks is %d" % self.n_blocks)
 
-    def store(self, filename, num_bytes, threadID, client_socket):
+    def store(self, filename, num_bytes, threadID, file_contents):
         """ Add the specified file to the storage server. """
         self.lock.acquire()
         file_space = int(math.ceil(num_bytes/float(self.blocksize)))
@@ -46,31 +46,31 @@ class SimulatedDisk():
                 self.lock.release()
                 return "ERROR: PROBLEM CREATING FILE\n"
 
-            # new_file = StoredFiles(filename, self.letters.pop(0), num_bytes,
-            #                                         file_space, file_contents)
+            new_file = StoredFiles(filename, self.letters.pop(0), num_bytes,
+                                                    file_space, file_contents)
 
-            # getting the file stuff from the client starts here
+            # # getting the file stuff from the client starts here
 
-            file_len = 0
-            # get file contents from server
-            # TO DO: while total read content is less than num_bytes
-            # TO DO: check if content is jpg, if so account for bits
-            file_content = client_socket.recv(BUFFER_SIZE)
-            # TO DO: remove newline character??
-            file_len += len(file_content)
+            # file_len = 0
+            # # get file contents from server
+            # # TO DO: while total read content is less than num_bytes
+            # # TO DO: check if content is jpg, if so account for bits
+            # file_content = client_socket.recv(BUFFER_SIZE)
+            # # TO DO: remove newline character??
+            # file_len += len(file_content)
 
-            if(file_len>num_bytes):
-                self.lock.release()
-                return "ERROR: FILE CONTENTS LARGER THAN GIVEN BYTE SIZE\n"
+            # if(file_len>num_bytes):
+            #     self.lock.release()
+            #     return "ERROR: FILE CONTENTS LARGER THAN GIVEN BYTE SIZE\n"
 
-            make_file = open(filename, 'a')
-            make_file.write(file_content)
-            make_file.close()
+            # make_file = open(filename, 'a')
+            # make_file.write(file_content)
+            # make_file.close()
 
-            # store new file name in storage directory
-            new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space)
+            # # store new file name in storage directory
+            # new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space)
             
-            # getting the file stuff from the client ends here
+            # # getting the file stuff from the client ends here
 
             disk_file = open(".storage.txt",'a')
             disk_file.write(filename + '\n')

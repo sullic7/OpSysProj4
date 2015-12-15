@@ -73,9 +73,17 @@ def parse_request_and_formulate_response(client_socket, request, disk):
     command = split_request.pop(0)
 
     if command == 'STORE':
+        filename = split_request[0]
+        num_bytes = int(split_request[1])
         split_request[1] = int(split_request[1])
-        split_request.append(client_socket)
-        return disk.store(*split_request)
+        # split_request.append(client_socket)
+        file_contents = split_request[2]
+        # if not all the file_contents are read in read the rest in now
+        num_unread_bytes = num_bytes - len(file_contents)
+        if num_unread_bytes != 0:
+            file_contents += client_socket.recv(num_unread_bytes)
+
+        return disk.store(filename, num_bytes, current_thread, file_contents)
 
     if command == 'READ':
         split_request[1] = int(split_request[1])
