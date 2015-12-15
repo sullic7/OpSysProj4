@@ -39,7 +39,7 @@ def test_server(client_socket):
         except Exception as e:
             print("Caught error '%s' in sending command." % str(e))
             response = "Error sending command\n"
-        print response
+        # print response
 
 def send_command(client_socket, command):
     client_socket.send(command)
