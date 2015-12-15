@@ -1,3 +1,6 @@
+# Authors
+# Max Llewellyn
+# Caroline Sullivan
 """ This class has store, read, delete and dir methods for a simulated disk."""
 import threading
 import math

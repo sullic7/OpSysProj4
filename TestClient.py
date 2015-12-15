@@ -1,3 +1,6 @@
+# Authors
+# Max Llewellyn
+# Caroline Sullivan
 import socket
 import thread
 import threading

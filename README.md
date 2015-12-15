@@ -1,6 +1,10 @@
 # OpSysProj4
 Operating Systems Project 4
 
+# Authors
+Max Llewellyn
+Caroline Sullivan
+
 To start the server do
 ```
 python RunMeImTheServer.py
