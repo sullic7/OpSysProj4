@@ -77,7 +77,7 @@ def parse_request_and_formulate_response(client_socket, request, disk):
         if ".jpg" in filename:
             num_unread_bits = num_bytes*8 - len(file_contents)
             while num_unread_bits > 0:
-                file_contents += client_socket.recv(num_unread_bits)
+                file_contents += client_socket.recv(num_unread_bits).strip("\n")
                 num_unread_bits = num_bytes*8 - len(file_contents)
         else:
             num_unread_bytes = num_bytes - len(file_contents)
