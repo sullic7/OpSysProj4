@@ -19,9 +19,6 @@ class SimulatedDisk():
         "X", "Y", "Z",]
         self.disk_mem = []
 
-        #disk_file = open(".storage.txt",'w')
-        #disk_file.close()
-
         if not os.path.exists('.storage'):
             os.makedirs('.storage')
         else:
@@ -88,7 +85,7 @@ class SimulatedDisk():
                 f.seek(byte_offset)
                 contents = f.read(length)
             self.lock.release()
-            return "ACK %d\n%s\n" % (read_file.num_bytes, contents)
+            return "ACK %d\n%s\n" % (length, contents)
 
     def delete(self, filename, threadID):
         """ Delete the specified file on the server. """
@@ -118,7 +115,7 @@ class SimulatedDisk():
         """ Return a list of the filenames in the server."""
         self.lock.acquire()
         files = os.listdir('.storage')
-        result = str(len(files)) + '\n' + "".join(files)
+        result = str(len(files)) + '\n' + "\n".join(files) + '\n'
         self.lock.release()
         return "%s" % result
 
