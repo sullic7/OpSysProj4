@@ -6,7 +6,7 @@ from SimulatedDisk import SimulatedDisk
 import signal
 import sys
 
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 4096
 LISTENER_PORT = 8765
 
 

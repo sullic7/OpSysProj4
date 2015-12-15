@@ -2,7 +2,7 @@
 import threading
 import math
 
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 4096
 
 class SimulatedDisk():
 
@@ -46,7 +46,8 @@ class SimulatedDisk():
 
             file_len = 0
             # get file contents from server
-            # TO DO: while received info is not a new command
+            # TO DO: while total read content is less than num_bytes
+            # TO DO: check if content is jpg, if so account for bits
             file_content = client_socket.recv(BUFFER_SIZE)
             # TO DO: remove newline character??
             file_len += len(file_content)
