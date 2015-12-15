@@ -66,8 +66,8 @@ def parse_request_and_formulate_response(client_socket, request, disk):
         filename = split_request[1]
         # split_request[2] is NUM_BYTES\nDATA
         split_again = split_request[2].split('\n', 1)
-        print("before split: %s" % split_request[2])
-        print("after split", split_again)
+        # print("before split: %s" % split_request[2])
+        # print("after split", split_again)
         num_bytes = int(split_again[0])
         file_contents = split_again[1]
 
@@ -75,14 +75,16 @@ def parse_request_and_formulate_response(client_socket, request, disk):
         # this will read in all the unread bytes
 
         if ".jpg" in filename:
+            file_contents = file_contents.strip("\n")
             num_unread_bits = num_bytes*8 - len(file_contents)
             while num_unread_bits > 0:
-                file_contents += client_socket.recv(num_unread_bits).strip("\n")
+                file_contents += client_socket.recv(BUFFER_SIZE).strip("\n")
+                print("adding file contents: '%s'" % file_contents)
                 num_unread_bits = num_bytes*8 - len(file_contents)
         else:
             num_unread_bytes = num_bytes - len(file_contents)
             while num_unread_bytes > 0:
-                file_contents += client_socket.recv(num_unread_bytes)
+                file_contents += client_socket.recv(BUFFER_SIZE)
                 num_unread_bytes = num_bytes - len(file_contents)
 
         return disk.store(filename, num_bytes, current_thread, file_contents)
@@ -101,7 +103,7 @@ def parse_request_and_formulate_response(client_socket, request, disk):
     if command == 'DIR\n':
         return disk.dir(current_thread)
     # if we haven't returned by now there's an error
-    print("[thread %d] ERROR: Invalid command" % current_thread)
+    print("[thread %d] ERROR: Invalid command: %s" % (current_thread, command))
     return "ERROR: INVALID COMMAND\n"
 
 
