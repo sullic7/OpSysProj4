@@ -1,6 +1,8 @@
 """ This class has store, read, delete and dir methods for a simulated disk."""
 import threading
 import math
+import shutil
+import os
 
 BUFFER_SIZE = 4096
 
@@ -15,14 +17,21 @@ class SimulatedDisk():
         self.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",]
         self.disk_mem = []
 
-        disk_file = open(".storage.txt",'w')
-        disk_file.close()
+        #disk_file = open(".storage.txt",'w')
+        #disk_file.close()
+
+        if not os.path.exists('.storage'):
+            os.makedirs('.storage')
+        else:
+            shutil.rmtree('.storage')
+            os.makedirs('.storage')
+
         for i in range(self.size):
             self.disk_mem.append(".")
         print("Block size is %d" % self.blocksize)
         print("Number of blocks is %d" % self.n_blocks)
 
-    def store(self, filename, num_bytes, threadID, client_socket):
+    def store(self, filename, num_bytes, threadID, file_contents):
         """ Add the specified file to the storage server. """
         self.lock.acquire()
         file_space = int(math.ceil(num_bytes/float(self.blocksize)))
@@ -30,7 +39,7 @@ class SimulatedDisk():
         if(space < file_space):
             self.lock.release()
             return "ERROR: INSUFFICIENT DISK SPACE\n"
-        elif filename in self.files_on_disk:
+        elif os.path.exists(".storage/" + filename):
             self.lock.release()
             return "ERROR: FILE EXISTS\n"
         elif(len(self.letters)==0):
@@ -38,33 +47,15 @@ class SimulatedDisk():
             return "ERROR: TOO MANY FILES TO SIMULATE\n"
         else:
             try:
-                make_file = open(filename, 'w')
+                make_file = open(".storage/" + filename, 'w')
+                make_file.write(file_contents)
                 make_file.close()
             except:
                 self.lock.release()
                 return "ERROR: PROBLEM CREATING FILE\n"
 
-            file_len = 0
-            # get file contents from server
-            # TO DO: while total read content is less than num_bytes
-            # TO DO: check if content is jpg, if so account for bits
-            file_content = client_socket.recv(BUFFER_SIZE)
-            # TO DO: remove newline character??
-            file_len += len(file_content)
-
-            if(file_len>num_bytes):
-                self.lock.release()
-                return "ERROR: FILE CONTENTS LARGER THAN GIVEN BYTE SIZE\n"
-
-            make_file = open(filename, 'a')
-            make_file.write(file_content)
-            make_file.close()
-
             # store new file name in storage directory
             new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space)
-            disk_file = open(".storage.txt",'a')
-            disk_file.write(filename + '\n')
-            disk_file.close()
             
             self.files_on_disk[filename] = new_file
             clusters = self.add_file(new_file.letter, file_space)
@@ -86,7 +77,11 @@ class SimulatedDisk():
             self.lock.release()
             return "ERROR: INVALID BYTE RANGE\n"
         else:
-            with open(filename) as f:
+            with open(".storage/" + filename) as f:
+                # TO DO: account for bit files?
+                # if '.jpg' in filename:
+                    # f.seek(byte_offset/8)
+                    # contents = f.read(length*8)
                 f.seek(byte_offset)
                 contents = f.read(length)
             self.lock.release()
@@ -98,20 +93,11 @@ class SimulatedDisk():
         removed_file = self.files_on_disk.pop(filename)
 
         # remove file from the directory
-        disk_file = open(".storage.txt",'r+')
-        files = disk_file.readlines()
-        file_exists = True
-        disk_file.seek(0)
-        for line in files:
-            if line != (removed_file.name + '\n'):
-                disk_file.write(line)
-        disk_file.truncate()
-        disk_file.close()
-
-        if not file_exists:
+        if not os.path.exists(".storage/" + filename):
             self.lock.release()
             return "ERROR: NO SUCH FILE\n"
         else:
+            os.remove(".storage/" + filename)
             i = 0
             j = 0
             while(i<self.size and j<removed_file.num_blocks):
@@ -127,10 +113,8 @@ class SimulatedDisk():
     def dir(self, threadID):
         """ Return a list of the filenames in the server."""
         self.lock.acquire()
-        disk_file = open(".storage.txt",'r')
-        files = disk_file.readlines()
+        files = os.listdir('.storage')
         result = str(len(files)) + '\n' + "".join(files)
-        disk_file.close()
         self.lock.release()
         return "%s" % result
 

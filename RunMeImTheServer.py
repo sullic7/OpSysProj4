@@ -5,6 +5,7 @@ import string
 from SimulatedDisk import SimulatedDisk
 import signal
 import sys
+import os
 
 BUFFER_SIZE = 4096
 LISTENER_PORT = 8765
@@ -39,10 +40,6 @@ def handle_new_conection(client_socket, client_address, disk):
                 client_socket.send("ERROR: NO DATA ENTERED FROM CLIENT\n")
                 break;
 
-            # first strip the string of the random "\r" I see from telnet
-            # NOTE: netcat does not have "\r", so use netcat
-            # data = string.replace(data, "\r", "")
-
             try:
                 response = parse_request_and_formulate_response(client_socket, data, disk)
             except Exception as e:
@@ -73,9 +70,18 @@ def parse_request_and_formulate_response(client_socket, request, disk):
     command = split_request.pop(0)
 
     if command == 'STORE':
+        filename = split_request[0]
+        num_bytes = int(split_request[1])
         split_request[1] = int(split_request[1])
-        split_request.append(client_socket)
-        return disk.store(*split_request)
+
+        # read file contents
+        file_contents = ""
+        num_unread_bytes = num_bytes
+        while num_unread_bytes > 0:
+            file_contents += client_socket.recv(num_unread_bytes)
+            num_unread_bytes -= len(file_contents)
+
+        return disk.store(filename, num_bytes, current_thread, file_contents)
 
     if command == 'READ':
         split_request[1] = int(split_request[1])
