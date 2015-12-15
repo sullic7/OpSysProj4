@@ -40,14 +40,8 @@ def handle_new_conection(client_socket, client_address, disk):
                 client_socket.send("ERROR: NO DATA ENTERED FROM CLIENT\n")
                 break;
 
-            # try:
             response = parse_request_and_formulate_response(client_socket, data, disk)
-#             except Exception as e:
-#                 # this is a catch all response
-#                 print("[thread %d] caught error '%s' in handling a request." % (threadID, str(e)))
-#                 response = \
-# """There was a runtime error in the code handling the
-# request. Please check the server log for more information.\n"""
+
             client_socket.send(response)
     finally:
         print("[thread %d] Client closed its socket....terminating" % threadID)
@@ -71,11 +65,17 @@ def parse_request_and_formulate_response(client_socket, request, disk):
 
         # so this is silly but if there are many newlines 
         # this will read in all the unread bytes
-        num_unread_bytes = num_bytes - len(file_contents)
 
-        while num_unread_bytes > 0:
-            file_contents += client_socket.recv(num_unread_bytes)
+        if ".jpg" in filename:
+            num_unread_bits = num_bytes*8 - len(file_contents)
+            while num_unread_bits > 0:
+                file_contents += client_socket.recv(num_unread_bits)
+                num_unread_bits = num_bytes*8 - len(file_contents)
+        else:
             num_unread_bytes = num_bytes - len(file_contents)
+            while num_unread_bytes > 0:
+                file_contents += client_socket.recv(num_unread_bytes)
+                num_unread_bytes = num_bytes - len(file_contents)
 
         return disk.store(filename, num_bytes, current_thread, file_contents)
 
