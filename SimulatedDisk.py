@@ -54,7 +54,11 @@ class SimulatedDisk():
                 return "ERROR: PROBLEM CREATING FILE\n"
 
             # store new file name in storage directory
-            new_file = StoredFiles(filename, self.letters.pop(0), num_bytes, file_space)
+            if '.jpg' in filename:
+                file_type = "jpg"
+            else:
+                file_type = "txt"
+            new_file = StoredFiles(filename, self.letters.pop(0), file_type, num_bytes, file_space)
             
             self.files_on_disk[filename] = new_file
             clusters = self.add_file(new_file.letter, file_space)
@@ -78,12 +82,12 @@ class SimulatedDisk():
             return "ERROR: INVALID BYTE RANGE\n"
         else:
             with open(".storage/" + filename) as f:
-                # TO DO: account for bit files?
-                # if '.jpg' in filename:
-                    # f.seek(byte_offset/8)
-                    # contents = f.read(length*8)
-                f.seek(byte_offset)
-                contents = f.read(length)
+                if self.files_on_disk[filename].type == "jpg":
+                    f.seek(byte_offset*8)
+                    contents = f.read(length*8)
+                else:
+                    f.seek(byte_offset)
+                    contents = f.read(length)
             self.lock.release()
             return "ACK %d\n%s\n" % (length, contents)
 
@@ -158,8 +162,9 @@ class SimulatedDisk():
 
 class StoredFiles():
 
-    def __init__(self, file_name, letter, num_bytes, num_blocks):
+    def __init__(self, file_name, letter, file_type, num_bytes, num_blocks):
         self.name = file_name
         self.letter = letter
+        self.type = file_type
         self.num_bytes = num_bytes
         self.num_blocks = num_blocks

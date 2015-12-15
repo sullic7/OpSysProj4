@@ -73,11 +73,17 @@ def parse_request_and_formulate_response(client_socket, request, disk):
 
         # so this is silly but if there are many newlines 
         # this will read in all the unread bytes
-        num_unread_bytes = num_bytes - len(file_contents)
 
-        while num_unread_bytes > 0:
-            file_contents += client_socket.recv(num_unread_bytes)
+        if ".jpg" in filename:
+            num_unread_bits = num_bytes*8 - len(file_contents)
+            while num_unread_bits > 0:
+                file_contents += client_socket.recv(num_unread_bits)
+                num_unread_bits = num_bytes*8 - len(file_contents)
+        else:
             num_unread_bytes = num_bytes - len(file_contents)
+            while num_unread_bytes > 0:
+                file_contents += client_socket.recv(num_unread_bytes)
+                num_unread_bytes = num_bytes - len(file_contents)
 
         return disk.store(filename, num_bytes, current_thread, file_contents)
 
