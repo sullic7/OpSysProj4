@@ -14,7 +14,9 @@ class SimulatedDisk():
         self.blocksize = blocksize
         self.lock = threading.Lock()
         self.files_on_disk = {}
-        self.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",]
+        self.letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+        "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W",
+        "X", "Y", "Z",]
         self.disk_mem = []
 
         #disk_file = open(".storage.txt",'w')
@@ -60,7 +62,8 @@ class SimulatedDisk():
             self.files_on_disk[filename] = new_file
             clusters = self.add_file(new_file.letter, file_space)
 
-            print("[thread %d] Stored file '%c' (%d bytes; %d blocks; %d cluster)" % (threadID, new_file.letter, num_bytes, file_space, clusters))
+            print("[thread %d] Stored file '%c' (%d bytes; %d blocks; %d cluster)" %
+                (threadID, new_file.letter, num_bytes, file_space, clusters))
             self.show(threadID)
             print("[thread %d] Sent: ACK" % threadID)
             self.lock.release()
@@ -105,7 +108,8 @@ class SimulatedDisk():
                     self.disk_mem[i] = "."
                     j+=1
                 i += 1
-            print("[thread %d] Deleted %s file '%c' (deallocated %d blocks)" % (threadID, removed_file.name, removed_file.letter, removed_file.num_blocks))
+            print("[thread %d] Deleted %s file '%c' (deallocated %d blocks)" %
+                (threadID, removed_file.name, removed_file.letter, removed_file.num_blocks))
             self.show(threadID)
             self.lock.release()
             return "ACK\n"
